@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block results %}
+	<p>Here are some {{query_string}} sounds! Enjoy!</p>>
+	<div id="wrapper">
+		<div id="container">
+			<div id="content_full">
+				<div id="sidebar">
+
+				</div>
+				<div class="search_paginator">
+
+				</div>
+				{% for sound in results %}
+					{% block sample_player_small { sound } %}
+					{% endblock %}
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
