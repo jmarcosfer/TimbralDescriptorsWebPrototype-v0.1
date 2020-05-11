@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import freesound
-import os
+import os, sys
+import signal
 import pandas as pd
 import numpy as np
 
@@ -17,27 +18,29 @@ def query_freesound(query):
 	pager = fs_client.text_search(
 		query=query,
 		fields=",".join(metadata_fields),
-		group_by_pack=0,
-		page_size=50
+		group_by_pack=1,
+		page_size=10,
+		filter="duration:[* TO 15]"
 	)
-	return [sound for s in pager if (sound.ac_analysis and (sound.duration <= 30.0))]
+	return [sound for sound in pager if (sound.ac_analysis and (sound.duration <= 30.0))]
 
 def make_pandas_record(fs_object):
 	record = {key: fs_object.as_dict()[key] for key in metadata_fields[:-2] }
-	record["path"] = "files/" + fs_object.previews.preview_lq_mp3.split("/")[-1]
+	record["path"] = "previews/" + fs_object.previews.preview_lq_mp3.split("/")[-1]
 	for descriptor in timbral_descriptors:
-		record[descriptor] = fs_object["ac_analysis"][descriptor]
+		record[descriptor] = fs_object.as_dict()["ac_analysis"][descriptor]
 	return record
 
 def get_results(query):
 	sounds = query_freesound(query)
-	sound.retrieve_preview("files/") for sound in sounds
+	for sound in sounds:
+		sound.retrieve_preview("previews/") 
 	results_df = pd.DataFrame([ make_pandas_record(s) for s in sounds ])
 	return results_df
 
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/media", static_folder='media')
 
 @app.route('/')
 def index():
@@ -49,10 +52,18 @@ def search():
 
 	# make query & results analysis logic:
 	results = get_results(query_string)
-	descriptor_stats = results.iloc[:, timbral_descriptors].describe([0.25, 0.5, 0.75])
+	descriptor_stats = results.loc[:, timbral_descriptors].describe([0.25, 0.5, 0.75])
 	# Now, from <results> dataframe, use:
 	# - metadata and previews to fill in sample_player_small.html template
 	# - descriptor stats to determine slider ranges, steps, and scale warp
 	
 
-	return render_template('results.html', query_string=query_string)
+	return render_template('results.html', query_string=query_string, results=results.loc[:,"name"].tolist())
+
+@app.errorhandler(500)
+def shutdown(e, f):
+	os.system("rm ./previews/*")
+	sys.exit(0)
+	print(e)
+
+signal.signal(signal.SIGINT, shutdown)

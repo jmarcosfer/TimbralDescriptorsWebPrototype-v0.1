@@ -1,7 +1,6 @@
-{% extends "layout.html" %}
+{% extends "index.html" %}
 
 {% block results %}
-	<p>Here are some {{query_string}} sounds! Enjoy!</p>>
 	<div id="wrapper">
 		<div id="container">
 			<div id="content_full">
@@ -11,9 +10,9 @@
 				<div class="search_paginator">
 
 				</div>
+				<p>Here are some {{query_string}} sounds! Enjoy!</p>
 				{% for sound in results %}
-					{% block sample_player_small { sound } %}
-					{% endblock %}
+					{% block sample_player_small %} {% endblock %}
 				{% endfor %}
 			</div>
 		</div>
