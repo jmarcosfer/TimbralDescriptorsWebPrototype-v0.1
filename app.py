@@ -10,7 +10,7 @@ fs_client = freesound.FreesoundClient()
 fs_client.set_token(FS_API_KEY)
 
 # Globals:
-metadata_fields = ["id", "name", "tags", "username", "description","duration", "license", "ac_analysis", "previews"]
+metadata_fields = ["id", "name", "tags", "username", "description","duration", "ac_analysis"]
 timbral_descriptors = ["ac_brightness", "ac_depth", "ac_hardness", "ac_roughness", "ac_boominess", "ac_warmth", "ac_sharpness"]
 
 # Helper functions
@@ -19,22 +19,25 @@ def query_freesound(query):
 		query=query,
 		fields=",".join(metadata_fields),
 		group_by_pack=1,
-		page_size=10,
-		filter="duration:[* TO 15]"
+		page_size=20,
+		filter="duration:[* TO 29]"
 	)
 	return [sound for sound in pager if (sound.ac_analysis and (sound.duration <= 30.0))]
 
 def make_pandas_record(fs_object):
-	record = {key: fs_object.as_dict()[key] for key in metadata_fields[:-2] }
-	record["path"] = "previews/" + fs_object.previews.preview_lq_mp3.split("/")[-1]
+	sound_dict = fs_object.as_dict()
+	record = {key: sound_dict[key] for key in metadata_fields[:-1] }
 	for descriptor in timbral_descriptors:
-		record[descriptor] = fs_object.as_dict()["ac_analysis"][descriptor]
+		try:
+			if descriptor in sound_dict["ac_analysis"].keys():
+				record[descriptor] = sound_dict["ac_analysis"][descriptor]
+		except KeyError as e:
+			print(e)
+			record[descriptor] = "NaN"
 	return record
 
 def get_results(query):
-	sounds = query_freesound(query)
-	for sound in sounds:
-		sound.retrieve_preview("previews/") 
+	sounds = query_freesound(query) 
 	results_df = pd.DataFrame([ make_pandas_record(s) for s in sounds ])
 	return results_df
 
@@ -52,18 +55,12 @@ def search():
 
 	# make query & results analysis logic:
 	results = get_results(query_string)
+
 	descriptor_stats = results.loc[:, timbral_descriptors].describe([0.25, 0.5, 0.75])
 	# Now, from <results> dataframe, use:
-	# - metadata and previews to fill in sample_player_small.html template
+	
 	# - descriptor stats to determine slider ranges, steps, and scale warp
 	
+	embed_links = ["https://freesound.org/embed/sound/iframe/{0}/simple/medium/".format(sound_id) for sound_id in results.loc[:,"id"].tolist()]
 
-	return render_template('results.html', query_string=query_string, results=results.loc[:,"name"].tolist())
-
-@app.errorhandler(500)
-def shutdown(e, f):
-	os.system("rm ./previews/*")
-	sys.exit(0)
-	print(e)
-
-signal.signal(signal.SIGINT, shutdown)
+	return render_template('results.html', query_string=query_string, results=embed_links)

@@ -10,9 +10,11 @@
 				<div class="search_paginator">
 
 				</div>
-				<p>Here are some {{query_string}} sounds! Enjoy!</p>
-				{% for sound in results %}
-					{% block sample_player_small %} {% endblock %}
+				<p>Here are some {{ query_string }} sounds! Enjoy!</p>
+				{% for embed_link in results %}
+					<div class="sample_player_small">
+						<iframe frameborder="0" scrolling="no" src={{embed_link}} width="481" height="86"></iframe>
+					</div>
 				{% endfor %}
 			</div>
 		</div>
