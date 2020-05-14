@@ -57,10 +57,11 @@ def search():
 	results = get_results(query_string)
 
 	descriptor_stats = results.loc[:, timbral_descriptors].describe([0.25, 0.5, 0.75])
+
 	# Now, from <results> dataframe, use:
 	
 	# - descriptor stats to determine slider ranges, steps, and scale warp
 	
 	embed_links = ["https://freesound.org/embed/sound/iframe/{0}/simple/medium/".format(sound_id) for sound_id in results.loc[:,"id"].tolist()]
 
-	return render_template('results.html', query_string=query_string, results=embed_links)
+	return render_template('results.html', query_string=query_string, results=embed_links, descriptor_stats=descriptor_stats.to_dict())

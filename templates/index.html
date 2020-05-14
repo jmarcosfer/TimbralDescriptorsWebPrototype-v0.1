@@ -2,15 +2,18 @@
 
 {% block header %}
 	<header>
-		<a href="/" id="logo"></a>
-		<div id="search">
-			<form action='/search' method='get'>
-				<fieldset>
-					<input type="text" autofocus name='q' size="30" style="color: rgb(170, 170, 170)" value>
-					<input type='submit' value id="search_submit">
-				</fieldset>
-			</form>
+		<div id="header">
+			<a href="/" id="logo"></a>
+			<div id="search">
+				<form action='/search' method='get'>
+					<fieldset>
+						<input type="text" autofocus name='q' size="30" style="color: rgb(170, 170, 170)" value>
+						<input type='submit' value id="search_submit">
+					</fieldset>
+				</form>
+			</div>
 		</div>
 	</header>
 	{% block results %} {% endblock %}
+
 {% endblock %}
