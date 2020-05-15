@@ -121,9 +121,7 @@
 .noUi-connects {
   border-radius: 3px;
 }
-.noUi-connect {
-  background-color: #ce1830;
-}
+
 /* Handles and cursors;
  */
 .noUi-draggable {
@@ -307,4 +305,13 @@
   transform: translate(0, -18px);
   top: auto;
   right: 28px;
+}
+
+/* Added/Changed by Jorge */
+.noUi-connect {
+  background-color: #ce1830;
+}
+
+.slider-block {
+  margin: 2% 0 9% 0;
 }

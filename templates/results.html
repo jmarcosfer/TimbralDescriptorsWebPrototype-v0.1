@@ -6,11 +6,11 @@
 			<div id="content_full">
 				<div id="sidebar" style="float:right">
 					<div class="content_box">
-						<div class="slider-block" style="padding-bottom:5%">
+						<div>
 							<h3>Audio Commons Timbral Descriptors</h3>
 							{% for descriptor in descriptor_stats.keys() %}
 							<h4 style="font-size:60%;text-align:center;">{{descriptor}}</h4>
-							<div id={{descriptor}}></div>
+							<div id={{descriptor}} class="slider-block"></div>
 							{% endfor %}
 						</div>
 						
@@ -29,17 +29,31 @@
 		</div>
 	</div>
 
-	{% for descriptor in descriptor_stats.keys() %}
 	<script>
+		sliders = Array.from(document.getElementsByClassName("slider-block"));
 
-		noUiSlider.create(document.getElementById("{{ descriptor }}"), {
-			start: [0, 100],
-			connect: true,
-			range: {
-				'min': 0,
-				'max': 100
-			}
+		sliders.forEach((slider, index) => {
+
+			noUiSlider.create(slider, {
+				start: [0, 100],
+				connect: true,
+				range: {
+					'min': 0,
+					'max': 100
+				}
+			});
+
+			// add event handler function:
+
+			slider.noUiSlider.on("change", function() {
+				let searchURL = window.location.href + "&f=" + slider
+
+				let http = new XMLHttpRequest();
+				http.open("GET", searchURL, true);
+				http.send(null);
+			});
 		});
+
 	</script>
-	{% endfor %}
+
 {% endblock %}

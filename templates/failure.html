@@ -1,5 +1,18 @@
-{% extends "layout.html" %}
+{% extends "index.html" %}
 
-{% block body %}
-	<p>That didn't work... You must provide some search term(s) and select a way to sort the results from the drop-down menu! </p>
+{% block results %}
+<div id="wrapper">
+	<div id="container">
+		<div id="content_full">
+			<div id="sidebar" style="float:right">
+
+			</div>
+			<div class="search_paginator">
+
+			</div>
+			<p>Sorry, we couldn't find any {{ query_string }} sounds. Try something else!</p>
+
+		</div>
+	</div>
+</div>
 {% endblock %}
