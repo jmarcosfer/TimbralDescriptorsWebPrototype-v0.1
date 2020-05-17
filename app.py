@@ -89,9 +89,9 @@ def search():
 		
 		# - descriptor stats to determine slider ranges, steps, and scale warp
 		
-		embed_links = ["https://freesound.org/embed/sound/iframe/{0}/simple/medium/".format(sound.id) for sound in results_pager]
+		result_ids = [sound.id for sound in results_pager]
 
-		return render_template('results.html', query_string=query_string, results=embed_links, descriptor_stats=descriptor_stats.to_dict(), format_name=format_name)
+		return render_template('results.html', query_string=query_string, results=result_ids, descriptor_stats=descriptor_stats.to_dict(), format_name=format_name)
 	
 	elif results_pager.count is 0:
 		return render_template('failure.html', query_string=query_string)

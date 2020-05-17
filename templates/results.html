@@ -20,16 +20,21 @@
 
 				</div>
 				<p>Here are some {{ query_string }} sounds! Enjoy!</p>
-				{% for embed_link in results %}
-					<div class="sample_player_small">
-						<iframe frameborder="0" scrolling="no" src={{embed_link}} width="481" height="86"></iframe>
-					</div>
-				{% endfor %}
+
 			</div>
 		</div>
 	</div>
 
 	<script>
+		let results = {{ results|tojson }};
+		let resultsDiv = document.getElementById("content_full");
+		
+		results.forEach((result, index) => {
+			resultsDiv.innerHTML += `<div class="sample_player_small">
+						<iframe frameborder="0" scrolling="no" src="https://freesound.org/embed/sound/iframe/${result}/simple/medium/" width="481" height="86"></iframe>
+					</div>`
+		})
+
 		let queryString = "{{ query_string }}";
 		let sliders = Array.from(document.getElementsByClassName("slider-block"));
 		let descriptorStats = {{ descriptor_stats|tojson }};
