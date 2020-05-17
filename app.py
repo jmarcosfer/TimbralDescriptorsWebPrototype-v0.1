@@ -34,9 +34,9 @@ def query_freesound(query, size, descriptor_filter):
 def scan_pager(pager, max_pages):
 	page_aggregate = [sound for sound in pager if sound.ac_analysis]
 
-	if max_pages >= 1: return page_aggregate
+	if max_pages <= 1: return page_aggregate
 	else:
-		for p in range(max_pages):
+		for p in range(max_pages-1):
 			try:
 				next_page = pager.next_page()
 			except ValueError:
@@ -77,7 +77,7 @@ def search():
 	results_pager = query_freesound(query_string, 20, descriptor_filter)
 	print("Received user results")
 	analysis_pager = query_freesound(query_string, 150, descriptor_filter)
-	aggregate_results = scan_pager(analysis_pager, 1)
+	aggregate_results = scan_pager(analysis_pager, 2)
 	print(f"Received analysis results ({len(aggregate_results)})")
 	aggregate_results_df = pd.DataFrame([ make_pandas_record(s) for s in aggregate_results ])
 	print("Put analysis results into dataframe")

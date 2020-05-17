@@ -43,11 +43,11 @@
 			let descriptorName = slider.id;
 			let sliderStats = descriptorStats[descriptorName];
 			noUiSlider.create(slider, {
-				start: [sliderStats["25%"], sliderStats["75%"]],
+				start: [sliderStats.min, sliderStats.max],
 				connect: true,
 				range: {
-					'min': sliderStats["25%"],
-					'max': sliderStats["75%"]
+					'min': 0,
+					'max': 100
 				}
 			});
 
@@ -55,16 +55,18 @@
 
 			slider.noUiSlider.on("change", function() {
 				sliderValues = slider.noUiSlider.get();
+				console.log(`${descriptorName}: ${sliderValues}`);
 				let searchURL = `${window.location.origin}/search?q=${queryString}&f=${descriptorName}%3A%5B${sliderValues[0]} TO ${sliderValues[1]}%5D`
 
-				let xhr = new XMLHttpRequest();
-				xhr.addEventListener('load', function() {
-					if (this.status == 200 && this.readyState == 4) {
-						window.location = this.responseURL;
-					}
-				});
-				xhr.open("GET", searchURL, true);
-				xhr.send(null);
+				window.location = searchURL;
+				// let xhr = new XMLHttpRequest();
+				// xhr.addEventListener('load', function() {
+				// 	if (this.status == 200 && this.readyState == 4) {
+				// 		window.location = this.responseURL;
+				// 	}
+				// });
+				// xhr.open("GET", searchURL, true);
+				// xhr.send(null);
 			});
 		});
 
