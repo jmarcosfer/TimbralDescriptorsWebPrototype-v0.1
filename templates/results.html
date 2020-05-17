@@ -9,7 +9,7 @@
 						<div>
 							<h3>Audio Commons Timbral Descriptors</h3>
 							{% for descriptor in descriptor_stats.keys() %}
-							<h4 style="font-size:60%;text-align:center;">{{descriptor}}</h4>
+							<h4 style="font-size:60%;text-align:center;">{{format_name(descriptor)}}</h4>
 							<div id={{descriptor}} class="slider-block"></div>
 							{% endfor %}
 						</div>
@@ -30,27 +30,36 @@
 	</div>
 
 	<script>
-		sliders = Array.from(document.getElementsByClassName("slider-block"));
+		let queryString = "{{ query_string }}";
+		let sliders = Array.from(document.getElementsByClassName("slider-block"));
+		let descriptorStats = {{ descriptor_stats|tojson }};
 
 		sliders.forEach((slider, index) => {
-
+			let descriptorName = slider.id;
+			let sliderStats = descriptorStats[descriptorName];
 			noUiSlider.create(slider, {
-				start: [0, 100],
+				start: [sliderStats["25%"], sliderStats["75%"]],
 				connect: true,
 				range: {
-					'min': 0,
-					'max': 100
+					'min': sliderStats["25%"],
+					'max': sliderStats["75%"]
 				}
 			});
 
 			// add event handler function:
 
 			slider.noUiSlider.on("change", function() {
-				let searchURL = window.location.href + "&f=" + slider
+				sliderValues = slider.noUiSlider.get();
+				let searchURL = `${window.location.origin}/search?q=${queryString}&f=${descriptorName}%3A%5B${sliderValues[0]} TO ${sliderValues[1]}%5D`
 
-				let http = new XMLHttpRequest();
-				http.open("GET", searchURL, true);
-				http.send(null);
+				let xhr = new XMLHttpRequest();
+				xhr.addEventListener('load', function() {
+					if (this.status == 200 && this.readyState == 4) {
+						window.location = this.responseURL;
+					}
+				});
+				xhr.open("GET", searchURL, true);
+				xhr.send(null);
 			});
 		});
 
