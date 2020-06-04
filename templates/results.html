@@ -3,13 +3,14 @@
 {% block results %}
 	<div id="wrapper">
 		<div id="container">
-			<div id="content_full">
-				<div id="sidebar" style="float:right">
+			<div id="content_full" data-results="{{ results|tojson }}">
+				<div id="sidebar" style="float:right" data-stats='{{ descriptor_stats|tojson }}'' data-dist='{{ descriptor_dist|tojson }}'>
 					<div class="content_box">
 						<div>
 							<h3>Audio Commons Timbral Descriptors</h3>
 							{% for descriptor in descriptor_stats.keys() %}
 							<h4 style="font-size:60%;text-align:center;">{{format_name(descriptor)}}</h4>
+							<canvas id={{descriptor}} class="slider-canvas"></canvas>
 							<div id={{descriptor}} class="slider-block"></div>
 							{% endfor %}
 						</div>
@@ -25,51 +26,6 @@
 		</div>
 	</div>
 
-	<script>
-		let results = {{ results|tojson }};
-		let resultsDiv = document.getElementById("content_full");
-		
-		results.forEach((result, index) => {
-			resultsDiv.innerHTML += `<div class="sample_player_small">
-						<iframe frameborder="0" scrolling="no" src="https://freesound.org/embed/sound/iframe/${result}/simple/medium/" width="481" height="86"></iframe>
-					</div>`
-		})
-
-		let queryString = "{{ query_string }}";
-		let sliders = Array.from(document.getElementsByClassName("slider-block"));
-		let descriptorStats = {{ descriptor_stats|tojson }};
-
-		sliders.forEach((slider, index) => {
-			let descriptorName = slider.id;
-			let sliderStats = descriptorStats[descriptorName];
-			noUiSlider.create(slider, {
-				start: [sliderStats.min, sliderStats.max],
-				connect: true,
-				range: {
-					'min': 0,
-					'max': 100
-				}
-			});
-
-			// add event handler function:
-
-			slider.noUiSlider.on("change", function() {
-				sliderValues = slider.noUiSlider.get();
-				console.log(`${descriptorName}: ${sliderValues}`);
-				let searchURL = `${window.location.origin}/search?q=${queryString}&f=${descriptorName}%3A%5B${sliderValues[0]} TO ${sliderValues[1]}%5D`
-
-				window.location = searchURL;
-				// let xhr = new XMLHttpRequest();
-				// xhr.addEventListener('load', function() {
-				// 	if (this.status == 200 && this.readyState == 4) {
-				// 		window.location = this.responseURL;
-				// 	}
-				// });
-				// xhr.open("GET", searchURL, true);
-				// xhr.send(null);
-			});
-		});
-
-	</script>
+	<script src="static/js/main.js"></script>
 
 {% endblock %}
