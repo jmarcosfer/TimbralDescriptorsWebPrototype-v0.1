@@ -3,18 +3,18 @@
 {% block results %}
 	<div id="wrapper">
 		<div id="container">
-			<div id="content_full" data-results="{{ results|tojson }}">
-				<div id="sidebar" style="float:right" data-stats='{{ descriptor_stats|tojson }}'' data-dist='{{ descriptor_dist|tojson }}'>
+			<div id="content_full" data-results="{{ results|tojson }}" data-query-string="{{ query_string }}">
+				<div id="sidebar" style="float:right" data-stats='{{ descriptor_stats|tojson }}' data-dist='{{ descriptor_dist|tojson }}'>
 					<div class="content_box">
-						<div>
-							<h3>Audio Commons Timbral Descriptors</h3>
-							{% for descriptor in descriptor_stats.keys() %}
+						<h3>Audio Commons Timbral Descriptors</h3>
+						{% for descriptor in descriptor_stats.keys() %}
 							<h4 style="font-size:60%;text-align:center;">{{format_name(descriptor)}}</h4>
 							<canvas id={{descriptor}} class="slider-canvas"></canvas>
 							<div id={{descriptor}} class="slider-block"></div>
-							{% endfor %}
+						{% endfor %}
+						<div id="button-container">
+							<button id="filter-results" type="button"> Filter Search Results </button>
 						</div>
-						
 					</div>
 				</div>
 				<div class="search_paginator">

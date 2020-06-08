@@ -2,6 +2,7 @@
 // RESULTS CODE:
 let resultsDiv = document.getElementById("content_full");
 let results = JSON.parse(resultsDiv.dataset.results);
+let queryString = resultsDiv.dataset.queryString;
 
 results.forEach((result, index) => {
 	resultsDiv.innerHTML += `<div class="sample_player_small">
@@ -13,6 +14,10 @@ results.forEach((result, index) => {
 
 // *************************************************************************** //
 // SLIDERS AND CHARTS CODE:
+let searchBox = document.getElementById('search-box');
+let searchButton = document.getElementById('search_submit');
+let searchString = '';
+let filterButton = document.getElementById('filter-results');
 let sideBar = document.getElementById('sidebar');
 let descriptorStats = JSON.parse(sideBar.dataset.stats);
 let descriptorDist = JSON.parse(sideBar.dataset.dist);
@@ -90,6 +95,18 @@ sliderDivs.forEach((sliderDiv, index) => {
 	sliderDiv.noUiSlider.on("update", updateColorBars);
 });
 
+// Run new search when Filter Search Results is clicked:
+
+filterButton.addEventListener('click', function() {
+	let searchURL = `${window.location.origin}/search?q=${queryString}&f=`;
+	for (let [key, value] of Object.entries(sliders)) {
+		let lowerBound = value.div.noUiSlider.get()[0];
+		let upperBound = value.div.noUiSlider.get()[1];
+
+		searchURL += `${key}%3A%5B${lowerBound}%20TO%20${upperBound}%5D%20`;
+	}
+	window.location = searchURL;
+});
 
 // *************************************************************************** //
 /*	function() {

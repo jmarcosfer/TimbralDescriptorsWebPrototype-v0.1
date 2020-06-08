@@ -4552,3 +4552,14 @@ ul.messages {
     border-style: solid;
     border-color: transparent transparent transparent black;
 }
+
+/************************************/
+/************************************/
+/* Added by Jorge */
+
+/* for Filter Search Results Button */
+#button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
