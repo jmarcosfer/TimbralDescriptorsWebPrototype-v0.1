@@ -1,0 +1,6 @@
+# do not COPY the virtual environment folder nor the README or .gitignore files
+/venv
+.gitignore
+README.md
+*.code-workspace
+__pycache__

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import freesound
 import os, sys
-import signal
+import time
 import pandas as pd
 import numpy as np
 
@@ -74,22 +74,31 @@ def index():
 
 @app.route('/search')
 def search():
+	total_t = time.perf_counter()
 	query_string = request.args.get('q')
 	descriptor_filter = request.args.get('f')
-
 	print("Received query")
 	# make query & results analysis logic:
-	results_pager = query_freesound(query_string, 20, descriptor_filter)
-	print(f"Received user results ({len(results_pager.results)})")
-	analysis_pager = query_freesound(query_string, 150, descriptor_filter)
-	aggregate_results = scan_pager(analysis_pager, 2)
-	print(f"Received analysis results ({len(aggregate_results)})")
-	aggregate_results_df = pd.DataFrame([ make_pandas_record(s) for s in aggregate_results ])
-	print("Put analysis results into dataframe")
-	if results_pager.count is not 0:
 
+	t = time.perf_counter()
+	results_pager = query_freesound(query_string, 150, descriptor_filter)
+	t_delta = time.perf_counter() - t
+	print(f"Received pager in {t_delta} seconds")
+
+	if results_pager.count != 0:
+		t = time.perf_counter()
+		aggregate_results = scan_pager(results_pager, 1)
+		t_delta = time.perf_counter() - t
+		print(f"Scanned pager for ({len(aggregate_results)}) results, in {t_delta} seconds")
+
+		t = time.perf_counter()
+		aggregate_results_df = pd.DataFrame([ make_pandas_record(s) for s in aggregate_results ])
+		t_delta = time.perf_counter() - t
+		print("Put results into dataframe in {0} seconds".format(t_delta))
+
+		t = time.perf_counter()
 		descriptor_stats = aggregate_results_df.loc[:, timbral_descriptors].describe([0.25, 0.5, 0.75])
-		print("Calculated stats!")
+		print("Calculated stats...")
 
 		descriptor_dist = {}
 		for desc in timbral_descriptors:
@@ -100,11 +109,14 @@ def search():
 				i = int(i)
 				dist_array[i] = dist.loc[i] 
 			descriptor_dist[desc] = dist_array.tolist()
-		print("Calculated full distributions")
+		t_delta = time.perf_counter() - t
+		print(f"...and calculated full distributions, all in {t_delta} seconds")
 		
-		result_ids = [sound.id for sound in results_pager]
+		result_ids = [sound.id for sound in aggregate_results[:20]]
 
+		total_delta = time.perf_counter() - total_t
+		print(f"Total query time: {total_delta} seconds")
 		return render_template('results.html', query_string=query_string, results=result_ids, descriptor_stats=descriptor_stats.to_dict(), format_name=format_name, descriptor_dist=descriptor_dist)
 	
-	elif results_pager.count is 0:
+	elif results_pager.count == 0:
 		return render_template('failure.html', query_string=query_string)
