@@ -102,17 +102,15 @@ def search():
 
 		descriptor_dist = {}
 		for desc in timbral_descriptors:
-			quantized_results = aggregate_results_df.loc[:, desc].apply(quantize)
-			dist = quantized_results.value_counts(sort=False)
-			dist_array = np.zeros((101,), dtype=int) # include values 0 and 100 both
-			for i in dist.index:
-				i = int(i)
-				dist_array[i] = dist.loc[i] 
-			descriptor_dist[desc] = dist_array.tolist()
+			quantized = aggregate_results_df.loc[:, desc].apply(quantize)
+			for i in range(101):
+				value_select_mask = quantized == i
+				descriptor_dist[desc][i] = quantized.loc[value_select_mask].index.tolist() # get IDs with value i for descriptor desc
+				
 		t_delta = time.perf_counter() - t
 		print(f"...and calculated full distributions, all in {t_delta} seconds")
 		
-		result_ids = [sound.id for sound in aggregate_results[:20]]
+		result_ids = [sound.id for sound in aggregate_results[:15]]
 
 		total_delta = time.perf_counter() - total_t
 		print(f"Total query time: {total_delta} seconds")

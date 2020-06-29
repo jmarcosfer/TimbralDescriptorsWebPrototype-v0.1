@@ -29,10 +29,12 @@ let histLabels = [...Array(101).keys()]; // range for all AC descriptors 0 - 100
 
 // Utility functions:
 function createHistogram(ctx, label, data) {
+	// let x = for key in data: Array.append(data.key.length)
+	// let y = for key in data: Array.append(key)
 	return new Chart(ctx, {
 		type: 'bar',
 		data: {
-			labels: histLabels,
+			labels: data,
 			datasets: [{
 				label: label, // from variable
 				data: data, // from variable
@@ -107,20 +109,3 @@ filterButton.addEventListener('click', function() {
 	}
 	window.location = searchURL;
 });
-
-// *************************************************************************** //
-/*	function() {
-	sliderValues = sliderDiv.noUiSlider.get();
-	console.log(`${descriptorName}: ${sliderValues}`);
-	let searchURL = `${window.location.origin}/search?q=${queryString}&f=${descriptorName}%3A%5B${sliderValues[0]} TO ${sliderValues[1]}%5D`
-
-	window.location = searchURL;
-	// let xhr = new XMLHttpRequest();
-	// xhr.addEventListener('load', function() {
-	// 	if (this.status == 200 && this.readyState == 4) {
-	// 		window.location = this.responseURL;
-	// 	}
-	// });
-	// xhr.open("GET", searchURL, true);
-	// xhr.send(null);
-} */
