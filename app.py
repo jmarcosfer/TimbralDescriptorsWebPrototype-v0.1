@@ -103,6 +103,7 @@ def search():
 		descriptor_dist = {}
 		for desc in timbral_descriptors:
 			quantized = aggregate_results_df.loc[:, desc].apply(quantize)
+			descriptor_dist[desc] = {}
 			for i in range(101):
 				value_select_mask = quantized == i
 				descriptor_dist[desc][i] = quantized.loc[value_select_mask].index.tolist() # get IDs with value i for descriptor desc

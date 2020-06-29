@@ -29,15 +29,20 @@ let histLabels = [...Array(101).keys()]; // range for all AC descriptors 0 - 100
 
 // Utility functions:
 function createHistogram(ctx, label, data) {
-	// let x = for key in data: Array.append(data.key.length)
-	// let y = for key in data: Array.append(key)
+	let x = [];
+	let y = [];
+	Object.keys(data).forEach((key) => {
+		x.push(data[key].length);
+		y.push(key);
+	});
+
 	return new Chart(ctx, {
 		type: 'bar',
 		data: {
-			labels: data,
+			labels: y,
 			datasets: [{
 				label: label, // from variable
-				data: data, // from variable
+				data: x, // from variable
 				borderWidth: 1,
 				backgroundColor: 'rgba(0, 0, 0, 0.8)'
 			}]
@@ -71,6 +76,38 @@ function updateColorBars() {
 	sliders[this.target.id].chart.update();
 }
 
+function updateDists() {
+	const lower = Math.floor(this.get()[0]);
+	const size = Math.ceil((this.get()[1] + 1) - lower);
+	const otherSliders = [];
+	sliderDivs.forEach((div) => {
+		if (div.id != this.target.id) {
+			otherSliders.push(sliders[div.id]);
+		}
+	});
+
+	const currentRange = Array.from(new Array(size), (x, i) => i + lower);
+
+	let activeIDs = [];
+	currentRange.forEach((value) => {
+		sliders[this.target.id].dist[value].forEach((id) => {
+			activeIDs.push(id);
+		});
+	});
+
+	otherSliders.forEach((s) => {
+		let x = [];
+		Object.keys(s.dist).forEach((v) => {
+			let intersection = s.dist[v].filter(id => activeIDs.includes(id));
+			x.push(intersection.length);
+		});
+
+		s.chart.data.datasets[0].data = x;
+		s.chart.update();
+	});
+
+}
+
 // Main Loop:
 sliderDivs.forEach((sliderDiv, index) => {
 	let descriptorName = sliderDiv.id;
@@ -79,7 +116,7 @@ sliderDivs.forEach((sliderDiv, index) => {
 
 	sliders[descriptorName] = {
 		div: sliderDiv,
-		stats: sliderStats,
+		dist: descriptorDist[descriptorName],
 		chart: createHistogram(cvsCtx, descriptorName, descriptorDist[descriptorName])
 	};
 
@@ -95,6 +132,7 @@ sliderDivs.forEach((sliderDiv, index) => {
 	// add event handler function:
 	
 	sliderDiv.noUiSlider.on("update", updateColorBars);
+	sliderDiv.noUiSlider.on("change", updateDists);
 });
 
 // Run new search when Filter Search Results is clicked:
