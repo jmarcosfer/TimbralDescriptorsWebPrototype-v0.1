@@ -22,9 +22,13 @@ form[action="/feedback"] .statement {
 	font-weight: bold;
 	padding: 20px 4.25% 0;
 	margin-bottom:10px;
+	text-align: left;
 }
 
-form[action="/feedback"] label {width:100%;}
+form[action="/feedback"] label {
+	width:100%;
+	text-align: left;
+}
 
 form[action="/feedback"] fieldset {
 	border-width: 2px;
@@ -59,6 +63,7 @@ textarea {
 	/* Uniform text field size */
 	width: 95%;
 	box-sizing: border-box;
+	resize: none;
   
 	/* Match form field borders */
 	border: 1px solid #999;
@@ -227,6 +232,11 @@ form[action="/feedback"] .likert li input[type="radio"] {
 
 .invalid {
 	border: solid 2px red;
+}
+
+#relevance-which-query {
+	margin: 10px 0px;
+	width: 50%;
 }
 
 /*|| Collapsible styling */

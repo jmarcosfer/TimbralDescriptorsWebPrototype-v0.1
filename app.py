@@ -85,6 +85,7 @@ class Survey(db.Model):
 	filt_meaning = db.Column(db.Text())
 	filt_impact = db.Column(db.Text())
 	barplot_useful = db.Column(db.Text())
+	relevance_which_query = db.Column(db.Text())
 	relevant_filter_1 = db.Column(db.Text())
 	relevant_filter_2 = db.Column(db.Text())
 	relevant_filter_3 = db.Column(db.Text())
@@ -93,7 +94,7 @@ class Survey(db.Model):
 	comments = db.Column(db.Text())
 
 	def __repr__(self):
-		return f'<Date: {self.date}\n Task: {self.task}\n Meaning of Filters: {self.filt_meaning}\n Impact of Filters: {self.filt_impact}\n Barplots: {self.barplot_useful}\n Useful Filter A: {self.relevant_filter_1}\n Useful Filter B: {self.relevant_filter_2}\n Useful Filter C: {self.relevant_filter_3}\n Liked: {self.liked}\n Disliked: {self.disliked}\n Other Comments: {self.comments}\n >\n'
+		return f'<Date: {self.date}\n Task: {self.task}\n Meaning of Filters: {self.filt_meaning}\n Impact of Filters: {self.filt_impact}\n Barplots: {self.barplot_useful}\n Query for which filters were useful: {self.relevance_which_query}\n Useful Filter A: {self.relevant_filter_1}\n Useful Filter B: {self.relevant_filter_2}\n Useful Filter C: {self.relevant_filter_3}\n Liked: {self.liked}\n Disliked: {self.disliked}\n Other Comments: {self.comments}>\n'
 
 
 db.create_all()
@@ -165,6 +166,7 @@ def collect_feedback():
 		filters_meaning = request.form['likert-1']
 		filters_impact = request.form['likert-2']
 		barplots = request.form['likert-3']
+		relevance_which_query = request.form['relevance-which-query']
 		relevant_filter_1 = request.form['relevant-filter-1']
 		relevant_filter_2 = request.form['relevant-filter-2']
 		relevant_filter_3 = request.form['relevant-filter-3']
@@ -175,7 +177,7 @@ def collect_feedback():
 		# log problem
 		pass
 	# 2. save to data file
-	s = Survey(date=datetime.now(), task=task, filt_meaning=filters_meaning, filt_impact=filters_impact, barplot_useful=barplots, relevant_filter_1=relevant_filter_1, relevant_filter_2=relevant_filter_2, relevant_filter_3=relevant_filter_3, liked=liked, disliked=disliked, comments=comments)
+	s = Survey(date=datetime.now(), task=task, filt_meaning=filters_meaning, filt_impact=filters_impact, barplot_useful=barplots, relevance_which_query=relevance_which_query, relevant_filter_1=relevant_filter_1, relevant_filter_2=relevant_filter_2, relevant_filter_3=relevant_filter_3, liked=liked, disliked=disliked, comments=comments)
 	db.session.add(s)
 	db.session.commit()
 

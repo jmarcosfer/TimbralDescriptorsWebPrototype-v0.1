@@ -8,6 +8,7 @@
 				<div class="form-wrap">
 					<form action="/feedback" method="POST" id="evaluation-form">
 						<h1>User Evaluation Form</h1>
+						Please, complete the following form to the best of your abilities. It should only take 5 minutes or less.
 						<fieldset>
 							<legend> Context </legend>
 							<p>
@@ -103,7 +104,7 @@
 							</ul>
 						</fieldset>
 						<fieldset id="drag-drop-fieldset">
-							<legend> Overall Impression: </legend>
+							<legend> Filter Relevance to Query </legend>
 							<p class="statement" id="relevance-section">
 								Pick the 3 filters that were most relevant/useful for you particular use case and query (drag & drop, order does not matter):
 								<div id="relevance-wrapper">
@@ -127,6 +128,13 @@
 									<input type="hidden" name="relevant-filter-3" value="">
 								</div>
 							</p>
+							<p class="statement">
+								<label for="relevance-which-query">Which query where these filters useful for? (i.e. what you typed into the search bar)</label><br>
+								<input type="text" id="relevance-which-query" name="relevance-which-query" required>
+							</p>
+						</fieldset>
+						<fieldset>
+							<legend> Overall Impression: </legend>
 							<p class="statement">
 								<label for="liked-text">Describe the things you liked about the proposed filtering system:</label>
 								<textarea id="liked-text" name="liked" placeholder="Enter text" required></textarea>
