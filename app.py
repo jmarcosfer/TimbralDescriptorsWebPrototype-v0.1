@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import freesound
 import os, sys
@@ -15,10 +15,9 @@ fs_client.set_token(FS_API_KEY)
 metadata_fields = ["id", "name", "duration", "ac_analysis"]
 timbral_descriptors = ["ac_brightness", "ac_depth", "ac_hardness", "ac_roughness", "ac_boominess", "ac_warmth", "ac_sharpness"]
 survey_data_path = "./survey_data"
-queries = []
 
-if not os.path.exists(os.path.dirname(survey_data_path)):
-	os.mkdir(os.path.dirname(survey_data_path))
+if not os.path.exists(survey_data_path):
+	os.mkdir(survey_data_path)
 
 ##################################################################################
 # Helper Functions:
@@ -80,7 +79,7 @@ db = SQLAlchemy(app)
 ##################################################################################
 # DB CLASS:
 class Survey(db.Model):
-	date = db.Column(db.DateTime, primary_key=True, nullable=False, default=datetime.utcnow)
+	date = db.Column(db.DateTime, primary_key=True, nullable=False, default=datetime.now)
 	task = db.Column(db.Text())
 	filt_meaning = db.Column(db.Text())
 	filt_impact = db.Column(db.Text())
@@ -109,8 +108,6 @@ def index():
 def search():
 	total_t = time.perf_counter()
 	query_string = request.args.get('q')
-	queries.append(query_string)
-	print(queries)
 	
 	descriptor_filter = request.args.get('f')
 	print("Received query")
@@ -181,4 +178,9 @@ def collect_feedback():
 	db.session.add(s)
 	db.session.commit()
 
-	return "Thanks for your collaboration!"
+	# redirect after post to avoid possible form resubmissions
+	return redirect(url_for('form_success'), code=303)
+
+@app.route('/form_success', methods=['GET'])
+def form_success():
+	return render_template('form_success.html')
