@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
+from flask_sqlalchemy import SQLAlchemy
 import freesound
 import os, sys
+from datetime import datetime
 import time
 import pandas as pd
 import numpy as np
@@ -12,6 +14,11 @@ fs_client.set_token(FS_API_KEY)
 # Globals:
 metadata_fields = ["id", "name", "duration", "ac_analysis"]
 timbral_descriptors = ["ac_brightness", "ac_depth", "ac_hardness", "ac_roughness", "ac_boominess", "ac_warmth", "ac_sharpness"]
+survey_data_path = "./survey_data"
+queries = []
+
+if not os.path.exists(os.path.dirname(survey_data_path)):
+	os.mkdir(os.path.dirname(survey_data_path))
 
 ##################################################################################
 # Helper Functions:
@@ -67,7 +74,32 @@ def quantize(x):
 ##################################################################################
 # START APP:
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///survey_data/survey.db'
+db = SQLAlchemy(app)
 
+##################################################################################
+# DB CLASS:
+class Survey(db.Model):
+	date = db.Column(db.DateTime, primary_key=True, nullable=False, default=datetime.utcnow)
+	task = db.Column(db.Text())
+	filt_meaning = db.Column(db.Text())
+	filt_impact = db.Column(db.Text())
+	barplot_useful = db.Column(db.Text())
+	relevant_filter_1 = db.Column(db.Text())
+	relevant_filter_2 = db.Column(db.Text())
+	relevant_filter_3 = db.Column(db.Text())
+	liked = db.Column(db.Text())
+	disliked = db.Column(db.Text())
+	comments = db.Column(db.Text())
+
+	def __repr__(self):
+		return f'<Date: {self.date}\n Task: {self.task}\n Meaning of Filters: {self.filt_meaning}\n Impact of Filters: {self.filt_impact}\n Barplots: {self.barplot_useful}\n Useful Filter A: {self.relevant_filter_1}\n Useful Filter B: {self.relevant_filter_2}\n Useful Filter C: {self.relevant_filter_3}\n Liked: {self.liked}\n Disliked: {self.disliked}\n Other Comments: {self.comments}\n >\n'
+
+
+db.create_all()
+
+##################################################################################
+# ENDPOINTS:
 @app.route('/')
 def index():
 	return render_template('index.html')
@@ -76,6 +108,9 @@ def index():
 def search():
 	total_t = time.perf_counter()
 	query_string = request.args.get('q')
+	queries.append(query_string)
+	print(queries)
+	
 	descriptor_filter = request.args.get('f')
 	print("Received query")
 	# make query & results analysis logic:
@@ -119,3 +154,29 @@ def search():
 	
 	elif results_pager.count == 0:
 		return render_template('failure.html', query_string=query_string)
+
+# Form endpoint:
+@app.route('/feedback', methods=['POST'])
+def collect_feedback():
+	# process entered form data
+	# 1. validate
+	try:
+		task = request.form['task']
+		filters_meaning = request.form['likert-1']
+		filters_impact = request.form['likert-2']
+		barplots = request.form['likert-3']
+		relevant_filter_1 = request.form['relevant-filter-1']
+		relevant_filter_2 = request.form['relevant-filter-2']
+		relevant_filter_3 = request.form['relevant-filter-3']
+		liked = request.form['liked']
+		disliked = request.form['disliked']
+		comments = request.form['comments']
+	except KeyError as e:
+		# log problem
+		pass
+	# 2. save to data file
+	s = Survey(date=datetime.now(), task=task, filt_meaning=filters_meaning, filt_impact=filters_impact, barplot_useful=barplots, relevant_filter_1=relevant_filter_1, relevant_filter_2=relevant_filter_2, relevant_filter_3=relevant_filter_3, liked=liked, disliked=disliked, comments=comments)
+	db.session.add(s)
+	db.session.commit()
+
+	return "Thanks for your collaboration!"

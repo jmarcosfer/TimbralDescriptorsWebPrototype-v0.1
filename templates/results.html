@@ -4,6 +4,148 @@
 	<div id="wrapper">
 		<div id="container">
 			<div id="content_full" data-results="{{ results|tojson }}" data-query-string="{{ query_string }}">
+				<button type="button" class="collapsible form">Tell us what you thought!</button>
+				<div class="form-wrap">
+					<form action="/feedback" method="POST" id="evaluation-form">
+						<h1>User Evaluation Form</h1>
+						<fieldset>
+							<legend> Context </legend>
+							<p>
+								<label for="task-select" class="statement">Which option best describes what you're doing?</label>
+								<div class="select-wrapper">
+									<select id="task-select" name="task" required>
+										<option value="">--Please choose an option--</option>
+										<option value="target-find"> Looking for a specific sound </option>
+										<option value="browse-for-like"> Browsing the search results for a sound I like</option>
+										<option value="exploring-freesound"> Exploring what's available in Freesound </option>
+									</select>
+								</div>
+							</p>
+						</fieldset>
+						<fieldset>
+							<legend> Usability </legend>
+							<ul>
+								<li>
+									<p class="statement">The meaning of the filters was clear enough.</p>
+									<ul class='likert'>
+										<li>
+											<input type="radio" name="likert-1" value="strongly_disagree" id="l1-strongly-disagree" class="form">
+											<label for="l1-strongly-disagree">Strongly disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-1" value="disagree" id="l1-disagree" class="form">
+											<label for="l1-disagree">Disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-1" value="neutral" id="l1-neutral" class="form" required>
+											<label for="l1-neutral">Neither Agree Nor Disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-1" value="agree" id="l1-agree" class="form">
+											<label for="l1-agree">Agree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-1" value="strongly_agree" id="l1-strongly-agree" class="form">
+											<label for="l1-strongly-agree">Strongly agree</label>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<p class="statement">Adjusting the filters had a clear and predictable impact on the search results.</p>
+									<ul class='likert'>
+										<li>
+											<input type="radio" name="likert-2" value="strongly_disagree" id="l2-strongly-disagree" class="form">
+											<label for="l2-strongly-disagree">Strongly disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-2" value="disagree" id="l2-disagree" class="form">
+											<label for="l2-disagree">Disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-2" value="neutral" id="l2-neutral" class="form"required>
+											<label for="l2-neutral">Neither Agree Nor Disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-2" value="agree" id="l2-agree" class="form">
+											<label for="l2-agree">Agree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-2" value="strongly_agree" id="l2-strongly-agree" class="form">
+											<label for="l2-strongly-agree">Strongly agree</label>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<p class="statement">The meaning of the barplots over each filter was clear and helped adjusting them.</p>
+									<ul class='likert'>
+										<li>
+											<input type="radio" name="likert-3" value="strongly_disagree" id="l3-strongly-disagree" class="form">
+											<label for="l3-strongly-disagree">Strongly disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-3" value="disagree" id="l3-disagree" class="form">
+											<label for="l3-disagree">Disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-3" value="neutral" id="l3-neutral" class="form" required>
+											<label for="l3-neutral">Neither Agree Nor Disagree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-3" value="agree" id="l3-agree" class="form">
+											<label for="l3-agree">Agree</label>
+										</li>
+										<li>
+											<input type="radio" name="likert-3" value="strongly_agree" id="l3-strongly-agree" class="form">
+											<label for="l3-strongly-agree">Strongly agree</label>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</fieldset>
+						<fieldset id="drag-drop-fieldset">
+							<legend> Overall Impression: </legend>
+							<p class="statement" id="relevance-section">
+								Pick the 3 filters that were most relevant/useful for you particular use case and query (drag & drop, order does not matter):
+								<div id="relevance-wrapper">
+									<ul class="cols" id="available">
+										<li class="empty"></li>
+										<li class="empty"></li>
+										<li class="empty"></li>
+										<li class="empty"></li>
+										<li class="empty"></li>
+										<li class="empty"></li>
+										<li class="empty"></li>
+									</ul>
+									<ul class="cols" id="selected">
+										<li class="empty" id="relevant-filter-1"></li>
+										<li class="empty" id="relevant-filter-2"></li>
+										<li class="empty" id="relevant-filter-3"></li>
+									</ul>
+									<!-- hidden inputs collect dragndrop data to be sent with form -->
+									<input type="hidden" name="relevant-filter-1" value="" required>
+									<input type="hidden" name="relevant-filter-2" value="">
+									<input type="hidden" name="relevant-filter-3" value="">
+								</div>
+							</p>
+							<p class="statement">
+								<label for="liked-text">Describe the things you liked about the proposed filtering system:</label>
+								<textarea id="liked-text" name="liked" placeholder="Enter text" required></textarea>
+							</p>
+							<p class="statement">
+								<label for="disliked-text">Describe the things you did NOT like about the proposed filtering system:</label>
+								<textarea id="disliked-text" name="disliked" placeholder="Enter text" required></textarea>
+							</p>
+							<p class="statement">
+								<label for="general-comments">Please type here any other comments you might have...</label>
+								<textarea id="general-comments" name="comments" placeholder="Enter text"></textarea>
+							</p>
+						</fieldset>
+						<p class="statement" style="display: flex; justify-content: center; align-items: center;">
+							<button type="submit" class="form" style="display:block;" form="evaluation-form">Submit Feedback</button>
+						</p>
+					</form>
+				</div>
+
 				<div id="sidebar" style="float:right" data-stats='{{ descriptor_stats|tojson }}' data-dist='{{ descriptor_dist|tojson }}'>
 					<div class="content_box">
 						<h3>Audio Commons Timbral Descriptors</h3>
@@ -27,5 +169,5 @@
 	</div>
 
 	<script src="static/js/main.js"></script>
-
-{% endblock %}
+	<script src="static/js/form.js"></script>
+{% endblock results %}
