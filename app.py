@@ -1,9 +1,14 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, make_response
+from flask_sqlalchemy import SQLAlchemy
 import freesound
 import os, sys
+from io import StringIO
+from datetime import datetime
 import time
 import pandas as pd
 import numpy as np
+import csv
+import unicodedata
 
 FS_API_KEY=os.getenv('FREESOUND_API_KEY', None)
 fs_client = freesound.FreesoundClient()
@@ -12,6 +17,10 @@ fs_client.set_token(FS_API_KEY)
 # Globals:
 metadata_fields = ["id", "name", "duration", "ac_analysis"]
 timbral_descriptors = ["ac_brightness", "ac_depth", "ac_hardness", "ac_roughness", "ac_boominess", "ac_warmth", "ac_sharpness"]
+survey_data_path = "./survey_data"
+
+if not os.path.exists(survey_data_path):
+	os.mkdir(survey_data_path)
 
 ##################################################################################
 # Helper Functions:
@@ -66,16 +75,44 @@ def quantize(x):
 		
 ##################################################################################
 # START APP:
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///survey_data/survey.db'
+app.use_x_sendfile = True
+db = SQLAlchemy(app)
 
-@app.route('/')
+##################################################################################
+# DB CLASS:
+class Survey(db.Model):
+	date = db.Column(db.DateTime, primary_key=True, nullable=False, default=datetime.now)
+	task = db.Column(db.Text())
+	filt_meaning = db.Column(db.Text())
+	filt_impact = db.Column(db.Text())
+	barplot_useful = db.Column(db.Text())
+	relevance_which_query = db.Column(db.Text())
+	relevant_filter_1 = db.Column(db.Text())
+	relevant_filter_2 = db.Column(db.Text())
+	relevant_filter_3 = db.Column(db.Text())
+	liked = db.Column(db.Text())
+	disliked = db.Column(db.Text())
+	comments = db.Column(db.Text())
+
+	def __repr__(self):
+		return f'<Date: {self.date}\n Task: {self.task}\n Meaning of Filters: {self.filt_meaning}\n Impact of Filters: {self.filt_impact}\n Barplots: {self.barplot_useful}\n Query for which filters were useful: {self.relevance_which_query}\n Useful Filter A: {self.relevant_filter_1}\n Useful Filter B: {self.relevant_filter_2}\n Useful Filter C: {self.relevant_filter_3}\n Liked: {self.liked}\n Disliked: {self.disliked}\n Other Comments: {self.comments}>\n'
+
+
+db.create_all()
+
+##################################################################################
+# ENDPOINTS:
+@app.route('/timbral/')
 def index():
 	return render_template('index.html')
 
-@app.route('/search')
+@app.route('/timbral/search')
 def search():
 	total_t = time.perf_counter()
 	query_string = request.args.get('q')
+	
 	descriptor_filter = request.args.get('f')
 	print("Received query")
 	# make query & results analysis logic:
@@ -102,17 +139,16 @@ def search():
 
 		descriptor_dist = {}
 		for desc in timbral_descriptors:
-			quantized_results = aggregate_results_df.loc[:, desc].apply(quantize)
-			dist = quantized_results.value_counts(sort=False)
-			dist_array = np.zeros((101,), dtype=int) # include values 0 and 100 both
-			for i in dist.index:
-				i = int(i)
-				dist_array[i] = dist.loc[i] 
-			descriptor_dist[desc] = dist_array.tolist()
+			quantized = aggregate_results_df.loc[:, desc].apply(quantize)
+			descriptor_dist[desc] = {}
+			for i in range(101):
+				value_select_mask = quantized == i
+				descriptor_dist[desc][i] = quantized.loc[value_select_mask].index.tolist() # get IDs with value i for descriptor desc
+				
 		t_delta = time.perf_counter() - t
 		print(f"...and calculated full distributions, all in {t_delta} seconds")
 		
-		result_ids = [sound.id for sound in aggregate_results[:20]]
+		result_ids = [sound.id for sound in aggregate_results[:15]]
 
 		total_delta = time.perf_counter() - total_t
 		print(f"Total query time: {total_delta} seconds")
@@ -120,3 +156,53 @@ def search():
 	
 	elif results_pager.count == 0:
 		return render_template('failure.html', query_string=query_string)
+
+# Form endpoint:
+@app.route('/timbral/feedback', methods=['POST'])
+def collect_feedback():
+	# process entered form data
+	# 1. validate
+	try:
+		task = request.form['task']
+		filters_meaning = request.form['likert-1']
+		filters_impact = request.form['likert-2']
+		barplots = request.form['likert-3']
+		relevance_which_query = request.form['relevance-which-query']
+		relevant_filter_1 = request.form['relevant-filter-1']
+		relevant_filter_2 = request.form['relevant-filter-2']
+		relevant_filter_3 = request.form['relevant-filter-3']
+		liked = request.form['liked']
+		disliked = request.form['disliked']
+		comments = request.form['comments']
+	except KeyError as e:
+		# log problem
+		pass
+	# 2. save to data file
+	s = Survey(date=datetime.now(), task=task, filt_meaning=filters_meaning, filt_impact=filters_impact, barplot_useful=barplots, relevance_which_query=relevance_which_query, relevant_filter_1=relevant_filter_1, relevant_filter_2=relevant_filter_2, relevant_filter_3=relevant_filter_3, liked=liked, disliked=disliked, comments=comments)
+	db.session.add(s)
+	db.session.commit()
+
+	# redirect after post to avoid possible form resubmissions
+	return redirect(url_for('form_success'), code=303)
+
+@app.route('/timbral/form_success', methods=['GET'])
+def form_success():
+	return render_template('form_success.html')
+
+
+# ruta para descargar la DB del servidor directamente
+@app.route('/timbral/getsurveydata')
+def get_survey_data():
+	export_cols = ["date", "task", "filt_meaning", "filt_impact", "barplot_useful", "relevance_which_query", "relevant_filter_1", "relevant_filter_2", "relevant_filter_3", "liked", "disliked", "comments"]
+	
+	sio = StringIO()
+	cw = csv.writer(sio)
+	cw.writerow(export_cols)
+	for survey in Survey.query.all():
+		cw.writerow([str(getattr(survey, col)) for col in export_cols])
+	
+	sio.seek(0)
+	resp = make_response(sio.getvalue())
+	resp.headers["Content-Disposition"] = "attachment; filename=survey_data.csv"
+	resp.headers["Content-type"] = "text/csv"
+	return resp
