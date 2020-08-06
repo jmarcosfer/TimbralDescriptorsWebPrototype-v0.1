@@ -6,7 +6,7 @@
 			<div id="content_full" data-results="{{ results|tojson }}" data-query-string="{{ query_string }}">
 				<button type="button" class="collapsible form">Tell us what you thought!</button>
 				<div class="form-wrap">
-					<form action="/feedback" method="POST" id="evaluation-form">
+					<form action="/timbral/feedback" method="POST" id="evaluation-form">
 						<h1>User Evaluation Form</h1>
 						Please, complete the following form to the best of your abilities. It should only take 5 minutes or less.
 						<fieldset>
@@ -176,6 +176,6 @@
 		</div>
 	</div>
 
-	<script src="static/js/main.js"></script>
-	<script src="static/js/form.js"></script>
+	<script src={{ url_for('static', filename='js/main.js') }}></script>
+	<script src={{ url_for('static', filename='js/form.js') }}></script>
 {% endblock results %}

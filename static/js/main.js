@@ -138,7 +138,7 @@ sliderDivs.forEach((sliderDiv, index) => {
 // Run new search when Filter Search Results is clicked:
 
 filterButton.addEventListener('click', function() {
-	let searchURL = `${window.location.origin}/search?q=${queryString}&f=`;
+	let searchURL = `${window.location.origin}/timbral/search?q=${queryString}&f=`;
 	for (let [key, value] of Object.entries(sliders)) {
 		let lowerBound = value.div.noUiSlider.get()[0];
 		let upperBound = value.div.noUiSlider.get()[1];

@@ -6,7 +6,7 @@
 	margin: 0 0 20px;
 }
 
-form[action="/feedback"] {
+form[action="/timbral/feedback"] {
 	/* Center the form on the page */
 	margin: 0;
 	width: 800px;
@@ -16,7 +16,7 @@ form[action="/feedback"] {
 	border-radius: 1em;
 }
 
-form[action="/feedback"] .statement {
+form[action="/timbral/feedback"] .statement {
 	display:block;
 	font-size: 16px;
 	font-weight: bold;
@@ -25,12 +25,12 @@ form[action="/feedback"] .statement {
 	text-align: left;
 }
 
-form[action="/feedback"] label {
+form[action="/timbral/feedback"] label {
 	width:100%;
 	text-align: left;
 }
 
-form[action="/feedback"] fieldset {
+form[action="/timbral/feedback"] fieldset {
 	border-width: 2px;
     border-style: groove;
     border-color: threedface;
@@ -80,7 +80,7 @@ textarea:focus {
 
 
 /* || Likert Scales */
-form[action="/feedback"] .likert {
+form[action="/timbral/feedback"] .likert {
 	list-style:none;
 	width:100%;
 	margin:0;
@@ -89,9 +89,9 @@ form[action="/feedback"] .likert {
 	border-bottom:2px solid #efefef;
 }
 
-form[action="/feedback"] .likert:last-of-type {border-bottom:0;}
+form[action="/timbral/feedback"] .likert:last-of-type {border-bottom:0;}
 
-form[action="/feedback"] .likert:before {
+form[action="/timbral/feedback"] .likert:before {
 	content: '';
 	position:relative;
 	top:11px;
@@ -102,14 +102,14 @@ form[action="/feedback"] .likert:before {
 	width:78%;
 }
 
-form[action="/feedback"] .likert li {
+form[action="/timbral/feedback"] .likert li {
 	display:inline-block;
 	width:19%;
 	text-align:center;
 	vertical-align: top;
 }
   
-form[action="/feedback"] .likert li input[type="radio"] {
+form[action="/timbral/feedback"] .likert li input[type="radio"] {
 	display:block;
 	position:relative;
 	top:-2px;

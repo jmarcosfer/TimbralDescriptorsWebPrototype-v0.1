@@ -1,0 +1,11 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+      - "8500:8080"  # 8500 is the one configured in nginx /timbral -> 8500
+    working_dir: /usr/src/app
+    command: flask run --host 0.0.0.0 --port 8080
+    restart: always
+    volumes:
+      - .:/usr/src/app

@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 import freesound
 import os, sys
+from io import StringIO
 from datetime import datetime
 import time
 import pandas as pd
 import numpy as np
+import csv
+import unicodedata
 
 FS_API_KEY=os.getenv('FREESOUND_API_KEY', None)
 fs_client = freesound.FreesoundClient()
@@ -72,8 +75,9 @@ def quantize(x):
 		
 ##################################################################################
 # START APP:
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///survey_data/survey.db'
+app.use_x_sendfile = True
 db = SQLAlchemy(app)
 
 ##################################################################################
@@ -100,11 +104,11 @@ db.create_all()
 
 ##################################################################################
 # ENDPOINTS:
-@app.route('/')
+@app.route('/timbral/')
 def index():
 	return render_template('index.html')
 
-@app.route('/search')
+@app.route('/timbral/search')
 def search():
 	total_t = time.perf_counter()
 	query_string = request.args.get('q')
@@ -154,7 +158,7 @@ def search():
 		return render_template('failure.html', query_string=query_string)
 
 # Form endpoint:
-@app.route('/feedback', methods=['POST'])
+@app.route('/timbral/feedback', methods=['POST'])
 def collect_feedback():
 	# process entered form data
 	# 1. validate
@@ -181,10 +185,24 @@ def collect_feedback():
 	# redirect after post to avoid possible form resubmissions
 	return redirect(url_for('form_success'), code=303)
 
-@app.route('/form_success', methods=['GET'])
+@app.route('/timbral/form_success', methods=['GET'])
 def form_success():
 	return render_template('form_success.html')
 
-if __name__ == '__main__':
-	from waitress import serve
-	serve(app, host='0.0.0.0', port='8080')
+
+# ruta para descargar la DB del servidor directamente
+@app.route('/timbral/getsurveydata')
+def get_survey_data():
+	export_cols = ["date", "task", "filt_meaning", "filt_impact", "barplot_useful", "relevance_which_query", "relevant_filter_1", "relevant_filter_2", "relevant_filter_3", "liked", "disliked", "comments"]
+	
+	sio = StringIO()
+	cw = csv.writer(sio)
+	cw.writerow(export_cols)
+	for survey in Survey.query.all():
+		cw.writerow([str(getattr(survey, col)) for col in export_cols])
+	
+	sio.seek(0)
+	resp = make_response(sio.getvalue())
+	resp.headers["Content-Disposition"] = "attachment; filename=survey_data.csv"
+	resp.headers["Content-type"] = "text/csv"
+	return resp
