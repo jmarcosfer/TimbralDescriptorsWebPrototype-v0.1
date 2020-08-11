@@ -41,7 +41,7 @@ function createHistogram(ctx, label, data) {
 		data: {
 			labels: y,
 			datasets: [{
-				label: label, // from variable
+				label: label.slice(3), // from variable
 				data: x, // from variable
 				borderWidth: 1,
 				backgroundColor: 'rgba(0, 0, 0, 0.8)'
@@ -54,7 +54,24 @@ function createHistogram(ctx, label, data) {
 			scales: {
 				yAxes: [{
 					display: false
+				}],
+				xAxes: [{
+					display: true
 				}]
+			},
+			tooltips: {
+				callbacks: {
+					label: function(tooltipItem, data) {
+						var label = "sounds available: ";
+						label += tooltipItem.value;
+						return label;
+					},
+					title: function(tooltipItem, data) {
+						var title = label.slice(3) + ": ";
+						title += tooltipItem[0].label;
+						return title;
+					}
+				}
 			}
 		}
 	});

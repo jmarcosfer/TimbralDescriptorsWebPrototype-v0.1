@@ -26,8 +26,9 @@
 						<fieldset>
 							<legend> Usability </legend>
 							<ul>
+								<p class="statement" style="font-weight: normal;">The purpose of the sliders is to filter search results according to timbre, while the barplots over the filters show the number of available results for each filter value. Knowing this, indicate your agreement with the following statements: </p>
 								<li>
-									<p class="statement">The meaning of the filters was clear enough.</p>
+									<p class="statement">Applying the filters had an audible effect on the search results as I expected</p>
 									<ul class='likert'>
 										<li>
 											<input type="radio" name="likert-1" value="strongly_disagree" id="l1-strongly-disagree" class="form">
@@ -50,9 +51,9 @@
 											<label for="l1-strongly-agree">Strongly agree</label>
 										</li>
 									</ul>
-								</li>
+								</li> 
 								<li>
-									<p class="statement">Adjusting the filters had a clear and predictable impact on the search results.</p>
+									<p class="statement">The barplots were helpful in adjusting the filters</p>
 									<ul class='likert'>
 										<li>
 											<input type="radio" name="likert-2" value="strongly_disagree" id="l2-strongly-disagree" class="form">
@@ -73,31 +74,6 @@
 										<li>
 											<input type="radio" name="likert-2" value="strongly_agree" id="l2-strongly-agree" class="form">
 											<label for="l2-strongly-agree">Strongly agree</label>
-										</li>
-									</ul>
-								</li>
-								<li>
-									<p class="statement">The meaning of the barplots over each filter was clear and helped adjusting them.</p>
-									<ul class='likert'>
-										<li>
-											<input type="radio" name="likert-3" value="strongly_disagree" id="l3-strongly-disagree" class="form">
-											<label for="l3-strongly-disagree">Strongly disagree</label>
-										</li>
-										<li>
-											<input type="radio" name="likert-3" value="disagree" id="l3-disagree" class="form">
-											<label for="l3-disagree">Disagree</label>
-										</li>
-										<li>
-											<input type="radio" name="likert-3" value="neutral" id="l3-neutral" class="form" required>
-											<label for="l3-neutral">Neither Agree Nor Disagree</label>
-										</li>
-										<li>
-											<input type="radio" name="likert-3" value="agree" id="l3-agree" class="form">
-											<label for="l3-agree">Agree</label>
-										</li>
-										<li>
-											<input type="radio" name="likert-3" value="strongly_agree" id="l3-strongly-agree" class="form">
-											<label for="l3-strongly-agree">Strongly agree</label>
 										</li>
 									</ul>
 								</li>
@@ -159,6 +135,7 @@
 						<h3>Audio Commons Timbral Descriptors</h3>
 						{% for descriptor in descriptor_stats.keys() %}
 							<h4 style="font-size:60%;text-align:center;">{{format_name(descriptor)}}</h4>
+							<p style="font-size:60%;text-align:center;">(plot shows: sounds available)</p>
 							<canvas id={{descriptor}} class="slider-canvas"></canvas>
 							<div id={{descriptor}} class="slider-block"></div>
 						{% endfor %}

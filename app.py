@@ -75,7 +75,7 @@ def quantize(x):
 		
 ##################################################################################
 # START APP:
-app = Flask(__name__, static_folder='static', static_url_path='timbral/static')
+app = Flask(__name__, static_folder='static', static_url_path='/timbral/static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///survey_data/survey.db'
 db = SQLAlchemy(app)
 
@@ -84,7 +84,6 @@ db = SQLAlchemy(app)
 class Survey(db.Model):
 	date = db.Column(db.DateTime, primary_key=True, nullable=False, default=datetime.now)
 	task = db.Column(db.Text())
-	filt_meaning = db.Column(db.Text())
 	filt_impact = db.Column(db.Text())
 	barplot_useful = db.Column(db.Text())
 	relevance_which_query = db.Column(db.Text())
@@ -163,9 +162,8 @@ def collect_feedback():
 	# 1. validate
 	try:
 		task = request.form['task']
-		filters_meaning = request.form['likert-1']
-		filters_impact = request.form['likert-2']
-		barplots = request.form['likert-3']
+		filters_impact = request.form['likert-1']
+		barplots = request.form['likert-2']
 		relevance_which_query = request.form['relevance-which-query']
 		relevant_filter_1 = request.form['relevant-filter-1']
 		relevant_filter_2 = request.form['relevant-filter-2']
@@ -177,7 +175,7 @@ def collect_feedback():
 		# log problem
 		pass
 	# 2. save to data file
-	s = Survey(date=datetime.now(), task=task, filt_meaning=filters_meaning, filt_impact=filters_impact, barplot_useful=barplots, relevance_which_query=relevance_which_query, relevant_filter_1=relevant_filter_1, relevant_filter_2=relevant_filter_2, relevant_filter_3=relevant_filter_3, liked=liked, disliked=disliked, comments=comments)
+	s = Survey(date=datetime.now(), task=task, filt_impact=filters_impact, barplot_useful=barplots, relevance_which_query=relevance_which_query, relevant_filter_1=relevant_filter_1, relevant_filter_2=relevant_filter_2, relevant_filter_3=relevant_filter_3, liked=liked, disliked=disliked, comments=comments)
 	db.session.add(s)
 	db.session.commit()
 
