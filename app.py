@@ -190,7 +190,7 @@ def form_success():
 # ruta para descargar la DB del servidor directamente
 @app.route('/timbral/getsurveydata')
 def get_survey_data():
-	export_cols = ["date", "task", "filt_meaning", "filt_impact", "barplot_useful", "relevance_which_query", "relevant_filter_1", "relevant_filter_2", "relevant_filter_3", "liked", "disliked", "comments"]
+	export_cols = ["date", "task", "filt_impact", "barplot_useful", "relevance_which_query", "relevant_filter_1", "relevant_filter_2", "relevant_filter_3", "liked", "disliked", "comments"]
 	
 	sio = StringIO()
 	cw = csv.writer(sio)
