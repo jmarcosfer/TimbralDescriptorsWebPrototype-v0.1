@@ -77,7 +77,6 @@ def quantize(x):
 # START APP:
 app = Flask(__name__, static_folder='static', static_url_path='timbral/static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///survey_data/survey.db'
-app.use_x_sendfile = True
 db = SQLAlchemy(app)
 
 ##################################################################################
